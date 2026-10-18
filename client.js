@@ -32,11 +32,12 @@ let gameState = { players: [], bullets: [], timeLeft: 120 };
 let gameStarted = false;
 let ready = false;
 let botDifficulty = 'beginner';
+let aimAngle = 0;
 let toastTimer;
 let countdownTimer;
 let shakeUntil = 0;
 const keys = new Set();
-const pointer = { x: canvas.width / 2, y: canvas.height / 2, shooting: false };
+const pointer = { shooting: false };
 const impactEffects = [];
 const obstacles = [
   { x: 278, y: 150, w: 68, h: 20 }, { x: 614, y: 430, w: 68, h: 20 },
@@ -90,6 +91,7 @@ function handleMessage(message) {
     gameOverOverlay.classList.add('hidden');
     ready = false;
     gameStarted = false;
+    aimAngle = 0;
     document.querySelector('#room-title').textContent = '대기실';
     send({ type: 'requestRoom' });
   } else if (message.type === 'leftRoom') {
@@ -160,6 +162,9 @@ function updateRoomUi() {
   document.querySelector('.waiting-slot').classList.toggle('hidden', players.length > 1);
   readyButton.classList.remove('hidden');
   if (roomState.status === 'waiting') {
+    clearInterval(countdownTimer);
+    countdownOverlay.classList.add('hidden');
+    gameStarted = false;
     readyButton.disabled = players.length < 2;
     readyLabel.textContent = players.length < 2 ? '상대 입장 대기 중' : ready ? '준비 완료 · 취소하기' : '대결 준비하기';
     readyButton.classList.toggle('is-ready', ready);
@@ -174,7 +179,13 @@ function updateRoomUi() {
   } else if (roomState.status === 'playing') {
     arenaStatus.textContent = 'MATCH IN PROGRESS';
     waitingOverlay.classList.add('hidden');
+    countdownOverlay.classList.add('hidden');
+    gameStarted = true;
     document.querySelector('#room-title').textContent = '대결 중';
+    readyButton.classList.add('hidden');
+  } else if (roomState.status === 'countdown') {
+    arenaStatus.textContent = 'GET READY';
+    waitingOverlay.classList.add('hidden');
     readyButton.classList.add('hidden');
   } else if (roomState.status === 'finished') {
     arenaStatus.textContent = 'MATCH COMPLETE';
@@ -198,7 +209,6 @@ function startCountdown() {
     } else {
       clearInterval(countdownTimer);
       countdownOverlay.classList.add('hidden');
-      gameStarted = true;
     }
   }, 700);
 }
@@ -264,29 +274,27 @@ document.querySelector('#play-again').addEventListener('click', () => {
   document.querySelector('#room-title').textContent = '대기실';
 });
 
-function pointerPosition(event) {
-  const bounds = canvas.getBoundingClientRect();
-  return { x: (event.clientX - bounds.left) / bounds.width * canvas.width, y: (event.clientY - bounds.top) / bounds.height * canvas.height };
-}
-canvas.addEventListener('pointermove', (event) => Object.assign(pointer, pointerPosition(event)));
-canvas.addEventListener('pointerdown', (event) => {
-  pointer.shooting = true;
-  canvas.setPointerCapture(event.pointerId);
-});
-canvas.addEventListener('pointerup', () => { pointer.shooting = false; });
-canvas.addEventListener('pointercancel', () => { pointer.shooting = false; });
+const turnAngles = { arrowup: -Math.PI / 2, arrowright: 0, arrowdown: Math.PI / 2, arrowleft: Math.PI };
 window.addEventListener('keydown', (event) => {
   const key = event.key.toLowerCase();
   if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(key)) event.preventDefault();
+  if (Object.hasOwn(turnAngles, key)) aimAngle = turnAngles[key];
   keys.add(key);
 });
 window.addEventListener('keyup', (event) => keys.delete(event.key.toLowerCase()));
 window.addEventListener('blur', () => { keys.clear(); pointer.shooting = false; });
 
 document.querySelectorAll('.mobile-key').forEach((button) => {
-  const key = button.dataset.key;
-  button.addEventListener('pointerdown', (event) => { event.preventDefault(); keys.add(key); button.setPointerCapture(event.pointerId); });
-  const release = () => keys.delete(key);
+  const direction = button.dataset.key;
+  const movementKey = { up: 'w', down: 's', left: 'a', right: 'd' }[direction];
+  const directionAngle = { up: -Math.PI / 2, down: Math.PI / 2, left: Math.PI, right: 0 }[direction];
+  button.addEventListener('pointerdown', (event) => {
+    event.preventDefault();
+    keys.add(movementKey);
+    aimAngle = directionAngle;
+    button.setPointerCapture(event.pointerId);
+  });
+  const release = () => keys.delete(movementKey);
   button.addEventListener('pointerup', release);
   button.addEventListener('pointercancel', release);
   button.addEventListener('lostpointercapture', release);
@@ -299,17 +307,14 @@ mobileFire.addEventListener('lostpointercapture', () => { pointer.shooting = fal
 
 setInterval(() => {
   if (!gameStarted || !currentRoom) return;
-  const player = gameState.players.find((entry) => entry.id === myId);
-  if (!player) return;
-  const angle = Math.atan2(pointer.y - player.y, pointer.x - player.x);
   send({
     type: 'input',
     input: {
-      up: keys.has('w') || keys.has('arrowup'),
-      down: keys.has('s') || keys.has('arrowdown'),
-      left: keys.has('a') || keys.has('arrowleft'),
-      right: keys.has('d') || keys.has('arrowright'),
-      angle,
+      up: keys.has('w'),
+      down: keys.has('s'),
+      left: keys.has('a'),
+      right: keys.has('d'),
+      angle: aimAngle,
       shoot: pointer.shooting || keys.has(' '),
     },
   });

@@ -67,7 +67,11 @@
               <div class="step-item"><span class="step-number">02</span><span>두 플레이어 모두 준비</span></div>
               <div class="step-item"><span class="step-number">03</span><span>먼저 5점을 얻으면 승리</span></div>
             </div>
-            <div class="control-hint"><span class="keycap">W</span><span class="keycap">A</span><span class="keycap">S</span><span class="keycap">D</span><span class="hint-text">이동</span><span class="mouse-icon"><svg viewBox="0 0 20 24" aria-hidden="true"><rect x="3" y="1" width="14" height="22" rx="7"/><path d="M10 1v7"/></svg></span><span class="hint-text">조준 · 발사</span></div>
+            <div class="control-hint">
+              <span class="control-set"><span class="keycap keycap-wide">WASD</span><span class="hint-text">이동</span></span>
+              <span class="control-set"><span class="keycap keycap-wide">↑←↓→</span><span class="hint-text">방향 전환</span></span>
+              <span class="control-set"><span class="keycap keycap-wide">SPACE</span><span class="hint-text">발사</span></span>
+            </div>
           </aside>
           <article class="bot-card">
             <div class="bot-intro"><span class="card-type">SOLO TRAINING</span><h2>혼자서 봇과 대결</h2><p>난이도를 고르고 바로 연습을 시작하세요.</p></div>
@@ -88,7 +92,7 @@
           <section class="arena-panel">
             <div class="arena-top"><div class="arena-tag"><span class="live-dot"></span><span id="arena-status">WAITING FOR OPPONENT</span></div><div class="round-clock"><span class="clock-dot"></span><span id="timer">02:00</span></div></div>
             <div class="canvas-wrap"><canvas id="game-canvas" width="960" height="600" aria-label="실시간 대결 경기장"></canvas><div id="waiting-overlay" class="waiting-overlay"><div class="waiting-orbit"><span></span><span></span></div><p class="overlay-kicker">ARENA IS READY</p><h2 id="waiting-title">상대를 기다리는 중</h2><p id="waiting-copy">친구에게 방 코드를 공유해 주세요.</p><div class="overlay-code" id="overlay-code">----</div></div><div id="countdown-overlay" class="countdown-overlay hidden"><span id="countdown-number">3</span></div><div id="game-over-overlay" class="game-over-overlay hidden"><span class="overlay-kicker">MATCH COMPLETE</span><h2 id="result-title">승리!</h2><p id="result-copy">멋진 경기였어요.</p><button id="play-again" class="button button-primary" type="button">다시 대결하기 <span>↻</span></button></div><div class="mobile-controls" aria-label="터치 조작"><div class="mobile-dpad"><button type="button" class="mobile-key" data-key="up" aria-label="위로 이동">↑</button><div><button type="button" class="mobile-key" data-key="left" aria-label="왼쪽 이동">←</button><button type="button" class="mobile-key" data-key="down" aria-label="아래로 이동">↓</button><button type="button" class="mobile-key" data-key="right" aria-label="오른쪽 이동">→</button></div></div><button type="button" id="mobile-fire" class="mobile-fire" aria-label="발사"><span></span>FIRE</button></div></div>
-            <div class="arena-bottom"><div class="arena-controls"><span class="keycap">W</span><span class="keycap">A</span><span class="keycap">S</span><span class="keycap">D</span><span class="hint-text">이동</span><span class="control-divider"></span><span class="mouse-mini">●</span><span class="hint-text">조준 및 발사</span></div><span class="arena-note">FIRST TO 5 WINS</span></div>
+            <div class="arena-bottom"><div class="arena-controls"><span class="keycap keycap-wide">WASD</span><span class="hint-text">이동</span><span class="control-divider"></span><span class="keycap keycap-wide">↑←↓→</span><span class="hint-text">방향 전환</span><span class="keycap keycap-wide">SPACE</span><span class="hint-text">발사</span></div><span class="arena-note">FIRST TO 5 WINS</span></div>
           </section>
           <aside class="match-sidebar">
             <section class="players-card"><div class="sidebar-heading"><span>플레이어</span><span id="player-count" class="player-count">1 / 2</span></div><div id="player-list" class="player-list"></div><div class="versus-mark">VS</div><div class="waiting-slot"><span class="waiting-plus">+</span><span>상대 플레이어 대기 중</span></div></section>

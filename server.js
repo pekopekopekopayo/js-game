@@ -89,6 +89,12 @@ function leaveRoom(player) {
   player.room = null;
   room.players = room.players.filter((entry) => entry !== player);
 
+  if (room.status === 'countdown' && room.players.length && !room.bot) {
+    clearTimeout(room.countdownTimer);
+    room.status = 'waiting';
+    room.players[0].ready = false;
+  }
+
   if (room.status === 'playing' && room.players.length) {
     clearInterval(room.timer);
     room.status = 'finished';
@@ -99,6 +105,7 @@ function leaveRoom(player) {
 
   if (room.players.length === 0) {
     clearInterval(room.timer);
+    clearTimeout(room.countdownTimer);
     rooms.delete(room.code);
   } else {
     updateRoom(room);
@@ -108,6 +115,7 @@ function leaveRoom(player) {
 function finishGame(room, winner, reason = 'score') {
   if (room.status !== 'playing') return;
   clearInterval(room.timer);
+  clearTimeout(room.countdownTimer);
   room.status = 'finished';
   room.winner = winner;
   combatants(room).forEach((player) => { player.ready = false; });
@@ -121,7 +129,8 @@ function startGame(room) {
     : room.players.length === 2 && room.players.every((player) => player.ready);
   if (!canStart) return;
   clearInterval(room.timer);
-  room.status = 'playing';
+  clearTimeout(room.countdownTimer);
+  room.status = 'countdown';
   room.timeLeft = 120;
   room.bullets = [];
   combatants(room).forEach((player, index) => {
@@ -140,15 +149,30 @@ function startGame(room) {
   broadcast(room, { type: 'gameStarted' });
   updateRoom(room);
 
-  room.timer = setInterval(() => {
-    if (room.status !== 'playing') return;
-    room.timeLeft -= 1;
-    if (room.timeLeft <= 0) {
-      const [first, second] = combatants(room);
-      const winner = first.score === second.score ? null : first.score > second.score ? first.id : second.id;
-      finishGame(room, winner, 'time');
+  room.countdownTimer = setTimeout(() => {
+    room.countdownTimer = null;
+    if (room.status !== 'countdown') return;
+    const readyToPlay = room.bot
+      ? room.players.length === 1
+      : room.players.length === 2;
+    if (!readyToPlay) {
+      room.status = 'waiting';
+      room.players.forEach((player) => { player.ready = false; });
+      updateRoom(room);
+      return;
     }
-  }, 1000);
+    room.status = 'playing';
+    updateRoom(room);
+    room.timer = setInterval(() => {
+      if (room.status !== 'playing') return;
+      room.timeLeft -= 1;
+      if (room.timeLeft <= 0) {
+        const [first, second] = combatants(room);
+        const winner = first.score === second.score ? null : first.score > second.score ? first.id : second.id;
+        finishGame(room, winner, 'time');
+      }
+    }, 1000);
+  }, 2200);
 }
 
 function thinkForBot(room, bot, target, now) {
