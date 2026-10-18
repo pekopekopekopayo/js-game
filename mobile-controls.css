@@ -1,0 +1,12 @@
+.mobile-controls{display:none}
+@media(max-width:720px){
+  .mobile-controls{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:space-between;padding:10px 12px;pointer-events:none;z-index:2}
+  .mobile-dpad{display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:auto;touch-action:none}
+  .mobile-dpad>div{display:flex;gap:3px}
+  .mobile-key{width:31px;height:29px;padding:0;border:1px solid #94a6ad66;border-radius:5px;background:#111d25b8;color:#d8e6e7;font:15px "DM Mono",monospace;touch-action:none;user-select:none}
+  .mobile-key:active{background:#65f6d055;border-color:#65f6d0}
+  .mobile-fire{width:55px;height:55px;border:1px solid #ff718e99;border-radius:50%;background:#351e28b8;color:#ff9bae;font:9px "DM Mono",monospace;letter-spacing:.08em;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;pointer-events:auto;touch-action:none;user-select:none}
+  .mobile-fire span{width:11px;height:11px;border:2px solid currentColor;border-radius:50%;box-shadow:0 0 8px #ff718e80}
+  .mobile-fire:active{background:#713147;color:#fff}
+}
+@media(max-width:430px){.hero-art{right:0}}

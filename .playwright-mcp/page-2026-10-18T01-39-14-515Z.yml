@@ -1,0 +1,87 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - link "Neon Duel 홈" [ref=e4] [cursor=pointer]:
+      - /url: /
+      - img [ref=e6]
+      - generic [ref=e9]: NEONDUEL
+    - generic [ref=e12]: 실시간 서버 연결됨
+    - generic [ref=e13]:
+      - generic [ref=e14]: ARENA / 01
+      - generic [ref=e15]: "N"
+  - main [ref=e16]:
+    - generic [ref=e17]:
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - paragraph [ref=e20]: TWO PLAYERS. ONE ARENA.
+          - heading "한 판 붙을 준비되셨나요?" [level=1] [ref=e22]:
+            - text: 한 판 붙을
+            - text: 준비되셨나요?
+          - paragraph [ref=e23]: 친구와 방 코드를 나누고, 둘만의 아레나에서 승부를 겨뤄보세요.
+        - generic [ref=e24]:
+          - generic [ref=e27]: +
+          - generic [ref=e28]: +
+      - generic [ref=e29]:
+        - article [ref=e30]:
+          - generic [ref=e31]:
+            - generic [ref=e32]: "01"
+            - generic [ref=e33]: HOST A MATCH
+            - img [ref=e35]
+          - heading "새 게임 만들기" [level=2] [ref=e37]
+          - paragraph [ref=e38]:
+            - text: 방을 만들고 친구를 초대하세요.
+            - text: 방 코드는 자동으로 발급됩니다.
+          - generic [ref=e39]: 내 닉네임
+          - textbox "내 닉네임" [ref=e40]:
+            - /placeholder: "예: neonfox"
+          - button "아레나 만들기" [ref=e41] [cursor=pointer]:
+            - generic [ref=e42]: 아레나 만들기
+            - img [ref=e43]
+        - article [ref=e45]:
+          - generic [ref=e46]:
+            - generic [ref=e47]: "02"
+            - generic [ref=e48]: JOIN A MATCH
+            - img [ref=e50]
+          - heading "친구 방 참가하기" [level=2] [ref=e52]
+          - paragraph [ref=e53]:
+            - text: 친구에게 받은 4자리 코드를
+            - text: 입력하고 바로 입장하세요.
+          - generic [ref=e54]: 방 코드
+          - generic [ref=e55]:
+            - textbox "4자리 방 코드" [ref=e56]:
+              - /placeholder: ABCD
+            - textbox "내 닉네임" [ref=e57]
+          - button "방에 참가하기" [ref=e58] [cursor=pointer]:
+            - generic [ref=e59]: 방에 참가하기
+            - img [ref=e60]
+        - complementary [ref=e62]:
+          - generic [ref=e63]:
+            - generic [ref=e64]: ✳
+            - generic [ref=e65]:
+              - text: HOW TO PLAY
+              - heading "3초면 시작" [level=3] [ref=e66]
+          - generic [ref=e67]:
+            - generic [ref=e68]:
+              - generic [ref=e69]: "01"
+              - generic [ref=e70]: 방 만들기 또는 코드 입력
+            - generic [ref=e71]:
+              - generic [ref=e72]: "02"
+              - generic [ref=e73]: 두 플레이어 모두 준비
+            - generic [ref=e74]:
+              - generic [ref=e75]: "03"
+              - generic [ref=e76]: 먼저 5점을 얻으면 승리
+          - generic [ref=e77]:
+            - generic [ref=e78]: W
+            - generic [ref=e79]: A
+            - generic [ref=e80]: S
+            - generic [ref=e81]: D
+            - generic [ref=e82]: 이동
+            - img [ref=e84]
+            - generic [ref=e86]: 조준 · 발사
+      - generic [ref=e87]:
+        - generic [ref=e88]: "1 : 1 PRIVATE MATCH"
+        - generic [ref=e90]: 최대 2명 · 한 판 2분
+        - generic [ref=e91]: MADE FOR FRIENDS ✳
+  - status
+  - contentinfo [ref=e92]:
+    - generic [ref=e93]: NEON DUEL © 2026
+    - generic [ref=e94]: PLAY FAIR. HAVE FUN.

@@ -1,0 +1,13 @@
+{
+  "name": "neon-duel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A browser-based 1v1 WebSocket arcade game",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.3"
+  }
+}

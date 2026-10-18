@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b0e14">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <title>NEON DUEL — 1:1 아레나</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/game-ui.css">
+  <link rel="stylesheet" href="/mobile-controls.css">
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Neon Duel 홈">
+        <span class="brand-mark"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M6 8h8l12 16V8h8v24h-8L14 16v16H6z" fill="currentColor"/><path d="M28 4h7v7h-7z" fill="#ff718e"/></svg></span>
+        <span class="brand-name">NEON<span>DUEL</span></span>
+      </a>
+      <div class="topbar-center"><span class="live-dot"></span><span id="connection-label">서버 연결 중</span></div>
+      <div class="topbar-right"><span class="version-label">ARENA / 01</span><span class="top-avatar">N</span></div>
+    </header>
+
+    <main>
+      <section id="lobby-view" class="lobby-view">
+        <div class="intro-row">
+          <div>
+            <p class="eyebrow"><span class="eyebrow-line"></span> TWO PLAYERS. ONE ARENA.</p>
+            <h1>한 판 붙을<br><span>준비되셨나요?</span></h1>
+            <p class="intro-copy">친구와 방 코드를 나누고, 둘만의 아레나에서 승부를 겨뤄보세요.</p>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="hero-orbit orbit-a"></div><div class="hero-orbit orbit-b"></div>
+            <span class="hero-cross cross-a">+</span><span class="hero-cross cross-b">+</span>
+            <img class="hero-image" src="/ai-images/neon-fighter.png" alt="">
+          </div>
+        </div>
+
+        <div class="lobby-grid">
+          <article class="room-card create-card">
+            <div class="card-topline"><span class="card-index">01</span><span class="card-type">HOST A MATCH</span><span class="card-icon create-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span></div>
+            <h2>새 게임 만들기</h2>
+            <p>방을 만들고 친구를 초대하세요.<br>방 코드는 자동으로 발급됩니다.</p>
+            <label class="field-label" for="create-name">내 닉네임</label>
+            <input id="create-name" class="text-field" maxlength="16" placeholder="예: neonfox" autocomplete="nickname">
+            <button id="create-room" class="button button-primary" type="button"><span>아레나 만들기</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
+          </article>
+
+          <article class="room-card join-card">
+            <div class="card-topline"><span class="card-index">02</span><span class="card-type">JOIN A MATCH</span><span class="card-icon join-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 15 15 9M8 8l-2 2a4 4 0 0 0 6 6l2-2m2-6 2-2a4 4 0 0 0-6-6l-2 2" transform="translate(0 2)"/></svg></span></div>
+            <h2>친구 방 참가하기</h2>
+            <p>친구에게 받은 4자리 코드를<br>입력하고 바로 입장하세요.</p>
+            <label class="field-label" for="join-code">방 코드</label>
+            <div class="join-fields"><input id="join-code" class="text-field code-field" maxlength="4" placeholder="ABCD" autocomplete="off" aria-label="4자리 방 코드"><input id="join-name" class="text-field name-field" maxlength="16" placeholder="내 닉네임" autocomplete="nickname" aria-label="내 닉네임"></div>
+            <button id="join-room" class="button button-secondary" type="button"><span>방에 참가하기</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
+          </article>
+
+          <aside class="how-card">
+            <div class="how-title"><span class="how-spark">✳</span><div><span class="card-type">HOW TO PLAY</span><h3>3초면 시작</h3></div></div>
+            <div class="step-list">
+              <div class="step-item"><span class="step-number">01</span><span>방 만들기 또는 코드 입력</span></div>
+              <div class="step-item"><span class="step-number">02</span><span>두 플레이어 모두 준비</span></div>
+              <div class="step-item"><span class="step-number">03</span><span>먼저 5점을 얻으면 승리</span></div>
+            </div>
+            <div class="control-hint"><span class="keycap">W</span><span class="keycap">A</span><span class="keycap">S</span><span class="keycap">D</span><span class="hint-text">이동</span><span class="mouse-icon"><svg viewBox="0 0 20 24" aria-hidden="true"><rect x="3" y="1" width="14" height="22" rx="7"/><path d="M10 1v7"/></svg></span><span class="hint-text">조준 · 발사</span></div>
+          </aside>
+        </div>
+        <div class="lobby-foot"><span><span class="foot-dot"></span> 1 : 1 PRIVATE MATCH</span><span>최대 2명 · 한 판 2분</span><span class="foot-right">MADE FOR FRIENDS <span class="foot-star">✳</span></span></div>
+      </section>
+
+      <section id="room-view" class="room-view hidden">
+        <div class="room-heading"><div><button id="back-to-lobby" class="back-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6 6-6-6 6-6"/></svg> 로비로</button><p class="eyebrow room-eyebrow"><span class="eyebrow-line"></span> PRIVATE ARENA</p><h1 id="room-title">대기실</h1></div><div class="room-code-box"><span>ROOM CODE</span><strong id="room-code">----</strong><button id="copy-code" type="button" aria-label="방 코드 복사"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div></div>
+        <div class="arena-layout">
+          <section class="arena-panel">
+            <div class="arena-top"><div class="arena-tag"><span class="live-dot"></span><span id="arena-status">WAITING FOR OPPONENT</span></div><div class="round-clock"><span class="clock-dot"></span><span id="timer">02:00</span></div></div>
+            <div class="canvas-wrap"><canvas id="game-canvas" width="960" height="600" aria-label="실시간 대결 경기장"></canvas><div id="waiting-overlay" class="waiting-overlay"><div class="waiting-orbit"><span></span><span></span></div><p class="overlay-kicker">ARENA IS READY</p><h2 id="waiting-title">상대를 기다리는 중</h2><p id="waiting-copy">친구에게 방 코드를 공유해 주세요.</p><div class="overlay-code" id="overlay-code">----</div></div><div id="countdown-overlay" class="countdown-overlay hidden"><span id="countdown-number">3</span></div><div id="game-over-overlay" class="game-over-overlay hidden"><span class="overlay-kicker">MATCH COMPLETE</span><h2 id="result-title">승리!</h2><p id="result-copy">멋진 경기였어요.</p><button id="play-again" class="button button-primary" type="button">다시 대결하기 <span>↻</span></button></div><div class="mobile-controls" aria-label="터치 조작"><div class="mobile-dpad"><button type="button" class="mobile-key" data-key="up" aria-label="위로 이동">↑</button><div><button type="button" class="mobile-key" data-key="left" aria-label="왼쪽 이동">←</button><button type="button" class="mobile-key" data-key="down" aria-label="아래로 이동">↓</button><button type="button" class="mobile-key" data-key="right" aria-label="오른쪽 이동">→</button></div></div><button type="button" id="mobile-fire" class="mobile-fire" aria-label="발사"><span></span>FIRE</button></div></div>
+            <div class="arena-bottom"><div class="arena-controls"><span class="keycap">W</span><span class="keycap">A</span><span class="keycap">S</span><span class="keycap">D</span><span class="hint-text">이동</span><span class="control-divider"></span><span class="mouse-mini">●</span><span class="hint-text">조준 및 발사</span></div><span class="arena-note">FIRST TO 5 WINS</span></div>
+          </section>
+          <aside class="match-sidebar">
+            <section class="players-card"><div class="sidebar-heading"><span>플레이어</span><span id="player-count" class="player-count">1 / 2</span></div><div id="player-list" class="player-list"></div><div class="versus-mark">VS</div><div class="waiting-slot"><span class="waiting-plus">+</span><span>상대 플레이어 대기 중</span></div></section>
+            <div id="room-message" class="room-message"><span class="message-pulse"></span><span>친구가 들어오면 준비 버튼이 활성화돼요.</span></div>
+            <button id="ready-button" class="button button-ready" type="button" disabled><span class="ready-indicator"></span><span id="ready-label">상대 입장 대기 중</span></button>
+            <div class="match-rules"><span class="card-type">MATCH RULES</span><div><span>제한 시간</span><strong>02:00</strong></div><div><span>승리 점수</span><strong>5 HIT</strong></div><div><span>참가 인원</span><strong>1 VS 1</strong></div></div>
+          </aside>
+        </div>
+        <div class="lobby-foot"><span><span class="foot-dot"></span> ENCRYPTED ROOM CONNECTION</span><span>친구에게 방 코드를 공유하세요</span><span class="foot-right">NEON DUEL <span class="foot-star">✳</span></span></div>
+      </section>
+    </main>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <footer class="page-footer"><span>NEON DUEL © 2026</span><span>PLAY FAIR. HAVE FUN.</span></footer>
+  </div>
+  <script src="/client.js"></script>
+</body>
+</html>
