@@ -8,6 +8,11 @@ const root = __dirname;
 const port = Number(process.env.PORT || 3000);
 const rooms = new Map();
 const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const botLevels = {
+  beginner: { label: '초급 BOT', reaction: 720, accuracy: 0.42, cooldown: 1350, range: 330, speed: 2.8, dodge: 0 },
+  intermediate: { label: '중급 BOT', reaction: 360, accuracy: 0.2, cooldown: 820, range: 270, speed: 3.5, dodge: 120 },
+  advanced: { label: '고급 BOT', reaction: 170, accuracy: 0.06, cooldown: 470, range: 210, speed: 4.1, dodge: 175 },
+};
 const mimeTypes = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -45,18 +50,23 @@ function broadcast(room, message) {
   for (const player of room.players) send(player.socket, message);
 }
 
+function combatants(room) {
+  return room.bot ? [...room.players, room.bot] : room.players;
+}
+
 function roomSnapshot(room) {
   return {
     type: 'room',
     code: room.code,
     status: room.status,
     timeLeft: room.timeLeft,
-    players: room.players.map((player) => ({
+    players: combatants(room).map((player) => ({
       id: player.id,
       name: player.name,
       color: player.color,
       score: player.score,
       ready: player.ready,
+      isBot: Boolean(player.isBot),
     })),
   };
 }
@@ -100,23 +110,32 @@ function finishGame(room, winner, reason = 'score') {
   clearInterval(room.timer);
   room.status = 'finished';
   room.winner = winner;
-  room.players.forEach((player) => { player.ready = false; });
+  combatants(room).forEach((player) => { player.ready = false; });
   broadcast(room, { type: 'gameOver', winner, reason });
   updateRoom(room);
 }
 
 function startGame(room) {
-  if (room.players.length !== 2 || !room.players.every((player) => player.ready)) return;
+  const canStart = room.bot
+    ? room.players.length === 1 && room.players[0].ready
+    : room.players.length === 2 && room.players.every((player) => player.ready);
+  if (!canStart) return;
   clearInterval(room.timer);
   room.status = 'playing';
   room.timeLeft = 120;
   room.bullets = [];
-  room.players.forEach((player, index) => {
+  combatants(room).forEach((player, index) => {
     player.x = index === 0 ? 130 : 830;
     player.y = 300;
     player.score = 0;
     player.input = { up: false, down: false, left: false, right: false, angle: index === 0 ? 0 : Math.PI };
     player.lastShot = 0;
+    player.nextShotAt = 0;
+    player.nextThinkAt = 0;
+    if (player.isBot) {
+      player.ready = true;
+      player.orbitDirection = player.orbitDirection || (Math.random() < 0.5 ? -1 : 1);
+    }
   });
   broadcast(room, { type: 'gameStarted' });
   updateRoom(room);
@@ -125,32 +144,100 @@ function startGame(room) {
     if (room.status !== 'playing') return;
     room.timeLeft -= 1;
     if (room.timeLeft <= 0) {
-      const [first, second] = room.players;
+      const [first, second] = combatants(room);
       const winner = first.score === second.score ? null : first.score > second.score ? first.id : second.id;
       finishGame(room, winner, 'time');
     }
   }, 1000);
 }
 
+function thinkForBot(room, bot, target, now) {
+  const profile = botLevels[room.difficulty];
+  if (now < bot.nextThinkAt) return;
+  bot.nextThinkAt = now + profile.reaction;
+
+  const dx = target.x - bot.x;
+  const dy = target.y - bot.y;
+  const distance = Math.hypot(dx, dy) || 1;
+  let moveX = 0;
+  let moveY = 0;
+  if (distance > profile.range + 24) {
+    moveX = dx / distance;
+    moveY = dy / distance;
+  } else if (distance < profile.range - 34) {
+    moveX = -dx / distance;
+    moveY = -dy / distance;
+  } else {
+    const direction = bot.orbitDirection;
+    moveX = (-dy / distance) * direction;
+    moveY = (dx / distance) * direction;
+  }
+
+  if (profile.dodge) {
+    const threat = room.bullets.find((bullet) => {
+      if (bullet.owner !== target.id) return false;
+      const bx = bot.x - bullet.x;
+      const by = bot.y - bullet.y;
+      const close = Math.hypot(bx, by) < profile.dodge;
+      const approaching = Math.cos(bullet.angle) * bx + Math.sin(bullet.angle) * by > 0;
+      return close && approaching;
+    });
+    if (threat) {
+      const awayX = bot.x - threat.x;
+      const awayY = bot.y - threat.y;
+      const awayLength = Math.hypot(awayX, awayY) || 1;
+      moveX += (awayX / awayLength) * 1.5;
+      moveY += (awayY / awayLength) * 1.5;
+    }
+  }
+
+  bot.input = {
+    up: moveY < -0.2,
+    down: moveY > 0.2,
+    left: moveX < -0.2,
+    right: moveX > 0.2,
+    angle: Math.atan2(dy, dx) + (Math.random() - 0.5) * profile.accuracy,
+  };
+}
+
+function fireBullet(room, player) {
+  room.bullets.push({
+    id: Math.random().toString(36).slice(2, 9),
+    owner: player.id,
+    x: player.x + Math.cos(player.input.angle) * 26,
+    y: player.y + Math.sin(player.input.angle) * 26,
+    angle: player.input.angle,
+    remove: false,
+  });
+}
+
 function gameTick() {
   for (const room of rooms.values()) {
     if (room.status !== 'playing') continue;
 
-    for (const player of room.players) {
+    const players = combatants(room);
+    if (room.bot && room.players[0]) thinkForBot(room, room.bot, room.players[0], Date.now());
+
+    for (const player of players) {
       const input = player.input;
       const dx = Number(input.right) - Number(input.left);
       const dy = Number(input.down) - Number(input.up);
       const length = Math.hypot(dx, dy) || 1;
-      player.x = Math.max(28, Math.min(932, player.x + (dx / length) * 4.3));
-      player.y = Math.max(28, Math.min(572, player.y + (dy / length) * 4.3));
+      const speed = player.isBot ? botLevels[room.difficulty].speed : 4.3;
+      player.x = Math.max(28, Math.min(932, player.x + (dx / length) * speed));
+      player.y = Math.max(28, Math.min(572, player.y + (dy / length) * speed));
+      if (player.isBot && Date.now() >= player.nextShotAt) {
+        fireBullet(room, player);
+        player.nextShotAt = Date.now() + botLevels[room.difficulty].cooldown;
+      }
     }
 
     for (const bullet of room.bullets) {
       bullet.x += Math.cos(bullet.angle) * 10;
       bullet.y += Math.sin(bullet.angle) * 10;
-      const target = room.players.find((player) => player.id !== bullet.owner);
+      const target = players.find((player) => player.id !== bullet.owner);
       if (target && Math.hypot(target.x - bullet.x, target.y - bullet.y) < 25) {
-        const shooter = room.players.find((player) => player.id === bullet.owner);
+        const shooter = players.find((player) => player.id === bullet.owner);
         if (shooter) shooter.score += 1;
         bullet.remove = true;
         if (shooter) broadcast(room, { type: 'hit', shooter: shooter.id, target: target.id, score: shooter.score });
@@ -162,7 +249,7 @@ function gameTick() {
     broadcast(room, {
       type: 'state',
       timeLeft: room.timeLeft,
-      players: room.players.map(({ id, x, y, score, input }) => ({ id, x, y, score, angle: input.angle })),
+      players: players.map(({ id, x, y, score, input }) => ({ id, x, y, score, angle: input.angle })),
       bullets: room.bullets.map(({ id, owner, x, y }) => ({ id, owner, x, y })),
     });
   }
@@ -196,7 +283,7 @@ sockets.on('connection', (socket) => {
     if (message.type === 'createRoom') {
       if (player.room) leaveRoom(player);
       const code = makeCode();
-      const room = { code, status: 'waiting', players: [], bullets: [], timeLeft: 120, timer: null };
+      const room = { code, status: 'waiting', mode: 'pvp', difficulty: null, bot: null, players: [], bullets: [], timeLeft: 120, timer: null };
       room.players.push(player);
       player.room = room;
       player.name = String(message.name || 'Player').trim().slice(0, 16) || 'Player';
@@ -204,6 +291,33 @@ sockets.on('connection', (socket) => {
       rooms.set(code, room);
       send(socket, { type: 'joined', id: player.id, code });
       updateRoom(room);
+      return;
+    }
+
+    if (message.type === 'createBot') {
+      if (player.room) leaveRoom(player);
+      const difficulty = Object.hasOwn(botLevels, message.difficulty) ? message.difficulty : 'beginner';
+      const code = makeCode();
+      const room = { code, status: 'waiting', mode: 'bot', difficulty, players: [], bullets: [], timeLeft: 120, timer: null };
+      player.room = room;
+      player.name = String(message.name || 'Pilot').trim().slice(0, 16) || 'Pilot';
+      player.color = '#65f6d0';
+      player.ready = true;
+      room.players.push(player);
+      room.bot = {
+        id: `bot-${code}`,
+        name: botLevels[difficulty].label,
+        color: '#ff718e',
+        score: 0,
+        ready: true,
+        isBot: true,
+        orbitDirection: Math.random() < 0.5 ? -1 : 1,
+        input: { up: false, down: false, left: false, right: false, angle: Math.PI },
+      };
+      rooms.set(code, room);
+      send(socket, { type: 'joined', id: player.id, code });
+      updateRoom(room);
+      startGame(room);
       return;
     }
 
@@ -240,18 +354,12 @@ sockets.on('connection', (socket) => {
       };
       if (input.shoot && Date.now() - player.lastShot > 280) {
         player.lastShot = Date.now();
-        room.bullets.push({
-          id: Math.random().toString(36).slice(2, 9),
-          owner: player.id,
-          x: player.x + Math.cos(player.input.angle) * 26,
-          y: player.y + Math.sin(player.input.angle) * 26,
-          angle: player.input.angle,
-          remove: false,
-        });
+        fireBullet(room, player);
       }
     } else if (message.type === 'playAgain' && room.status === 'finished') {
       player.ready = true;
       if (room.players.length === 2) room.players.forEach((entry) => { entry.ready = true; });
+      if (room.bot) room.bot.ready = true;
       startGame(room);
     } else if (message.type === 'leaveRoom') {
       leaveRoom(player);

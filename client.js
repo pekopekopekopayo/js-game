@@ -31,6 +31,7 @@ let roomState = null;
 let gameState = { players: [], bullets: [], timeLeft: 120 };
 let gameStarted = false;
 let ready = false;
+let botDifficulty = 'beginner';
 let toastTimer;
 let countdownTimer;
 let shakeUntil = 0;
@@ -219,6 +220,20 @@ document.querySelector('#join-room').addEventListener('click', () => {
   if (!socket || socket.readyState !== WebSocket.OPEN) return showToast('서버에 연결 중입니다. 잠시 후 다시 눌러주세요.');
   if (joinCode.value.trim().length !== 4) return showToast('4자리 방 코드를 입력해 주세요.');
   send({ type: 'joinRoom', code: joinCode.value.trim(), name: joinName.value.trim() || 'Player 2' });
+});
+document.querySelectorAll('.bot-level').forEach((button) => {
+  button.addEventListener('click', () => {
+    botDifficulty = button.dataset.difficulty;
+    document.querySelectorAll('.bot-level').forEach((level) => {
+      const selected = level === button;
+      level.classList.toggle('is-selected', selected);
+      level.setAttribute('aria-pressed', String(selected));
+    });
+  });
+});
+document.querySelector('#start-bot').addEventListener('click', () => {
+  if (!socket || socket.readyState !== WebSocket.OPEN) return showToast('서버에 연결 중입니다. 잠시 후 다시 눌러주세요.');
+  send({ type: 'createBot', difficulty: botDifficulty, name: document.querySelector('#bot-name').value.trim() || 'Pilot' });
 });
 joinCode.addEventListener('input', () => { joinCode.value = joinCode.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4); });
 readyButton.addEventListener('click', () => {
